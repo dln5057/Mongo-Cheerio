@@ -16,7 +16,8 @@ var exphbs = require('express-handlebars');
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
-mongoose.connect('mongodb://localhost/mongoCheerio');
+mongoose.connect('mongodb://heroku_3k78dgc5:8gnei7rt86otr05rdvf40qjdag@ds143608.mlab.com:43608/heroku_3k78dgc5');
+// mongoose.connect('mongodb://localhost/mongoCheerio');
 
 var db = mongoose.connection;
 db.on('error', function(err) {
