@@ -1,0 +1,56 @@
+body{
+  background: url('../images/NFLlogo.jpg') repeat;
+  background-size: 600px;
+  font-family: 'Dosis', sans-serif;
+  font-size: 16px;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+/*main{
+  flex: 1 0 auto;
+}*/
+
+.articleBody{
+  height: 200px;
+  font-size: 20px;
+  overflow-y: scroll;
+  line-height: 150%;
+}
+
+#commentName{
+  /*border-bottom: 2px solid #ec407a;*/
+  font-weight: bold;
+  background: #42a5f5;
+  color: white;
+}
+
+/* label underline focus color */
+/*.input-field input[type=text]:focus {
+ border-bottom: 1px solid #0089ec;
+ box-shadow: 0 1px 0 0 #000;
+}*/
+/* icon prefix focus color */
+/*.input-field .prefix.active {
+ color: #0089ec;
+}*/
+
+.card-panel {
+    border-radius: 52px;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+a {
+    color: #0e0e0e;
+}
+nav .brand-logo.center {
+    left: 9%;
+}
+
+h5{
+  color:black;
+}
