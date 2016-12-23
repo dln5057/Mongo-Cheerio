@@ -54,3 +54,10 @@ nav .brand-logo.center {
 h5{
   color:black;
 }
+
+h5 .commentLable{
+    color: #fafafa;
+    background: #ec0000;
+    text-align: center;
+
+}
