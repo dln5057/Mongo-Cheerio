@@ -1,49 +1,45 @@
 var express = require('express');
 var router = express.Router();
 var path = require('path');
-
-//require request and cheerio to scrape
 var request = require('request');
 var cheerio = require('cheerio');
-
-//Require models
 var Comment = require('../models/Comment.js');
 var Article = require('../models/Article.js');
 
-//index
+//index route that redirects to articles route
 router.get('/', function(req, res) {
     res.redirect('/articles');
 });
 
+//scrape route that scrapes the articeles from ESPN.com/NFL
 router.get('/scrape', function(req, res) {
-  // first, we grab the body of the html with request
+  // body of html is grabbed with request
   request('http://www.espn.com/nfl/', function(error, response, html) {
-    // then, we load that into cheerio and save it to $ for a shorthand selector
+    // html is loaded into cheerio and we save it as the variable $
     var $ = cheerio.load(html);
-
+    //create a array for storing the article titles
     var titlesArray = [];
     $('article .text-container').each(function(i, element) {
+        //result object to store articles and links to articles
         var result = {};
-  
+          //grab the title and link from the scrapped html and store in result
         result.title = $(this).children('.item-info-wrap').children('h1').text();
-        // result.summary = $(this).children('.item-info-wrap').children('p').text();
         result.link = $(this).children('.item-info-wrap').children('h1').children('a').attr('href');
    
-    // console.log(this)
-
-    // var entry = new Article (result);
+        //checks that an empty articles arent pulled 
         if(result.title !=="" && result.link !== ""){
           console.log("title " + result.title);
           console.log("link " + result.link);
-          // console.log("summary " + result.summary);
-          if(titlesArray.indexOf(result.title) == -1){
-    
-            titlesArray.push(result.title);
 
+          // checks for empty articles 
+          if(titlesArray.indexOf(result.title) == -1){
+            //pushes result.title into titlesArray if not empty title
+            titlesArray.push(result.title);
+            //checks if article is already in database
             Article.count({ title: result.title}, function (err, test){
               if(test == 0){
-
                 var entry = new Article(result);
+                //save the artcle to the Mongo database
                 entry.save(function(err, doc) {
                   // log any errors
                   if (err) {
@@ -57,73 +53,67 @@ router.get('/scrape', function(req, res) {
               }
             })
           }
-
+          //log article is in database
         else{
           console.log("Already have it");
         }
       }
+        //empty article
       else{
         console.log("Not saved to DB, missing data")
       }
 
     });
+        //redirect to the home page after scrapped 
     res.redirect('/');
   });
 });
 
+//route to show all the articles scrapped stored in the Mongo database
 router.get('/articles', function (req, res){
 
-  // Query MongoDB for all article entries (sort newest to top, assuming Ids increment)
+  //query the database to sort all entries from new to oldest
   Article.find().sort({_id: -1})
 
-    // Then, send them to the handlebars template to be rendered
+    //execute the articles to handlebars and render
     .exec(function(err, doc){
-      // log any errors
+      
       if (err){
         console.log(err);
       } 
-      // or send the doc to the browser as a json object
+ 
       else {
         var artcl = {article: doc};
         res.render('index', artcl);
-        // res.json(hbsObject)
       }
     });
 
 });
 
-router.get('/articles-json', function(req, res) {
-    Article.find({}, function(err, doc) {
-        if (err) {
-            console.log(err);
-        } else {
-            res.json(doc);
-        }
-    });
-});
-
+  //route to post comments to article
 router.post('/comment/:id', function(req, res) {
   var user = req.body.name;
-  var content = req.body.comment;
+  var summary = req.body.comment;
   var articleId = req.params.id;
 
-  //submitted form
   var commentObj = {
     name: user,
-    body: content
+    body: summary
   };
  
-  //using the Comment model, create a new comment
+  //creates a new comment
   var newComment = new Comment(commentObj);
 
+  //save comment to database to the ID of the article
   newComment.save(function(err, doc) {
       if (err) {
           console.log(err);
       } else {
-          console.log(doc._id)
-          console.log(articleId)
+          console.log("document ID: " + doc._id)
+          console.log("Article ID: " + articleId)
+
+          //find the article and push the comment in database to the ID 
           Article.findOneAndUpdate({ "_id": req.params.id }, {$push: {'comment':doc._id}}, {new: true})
-            //execute everything
             .exec(function(err, doc) {
                 if (err) {
                     console.log(err);
@@ -135,40 +125,37 @@ router.post('/comment/:id', function(req, res) {
   });
 });
 
+//route to get the article that user wants to read
 router.get('/readArticle/:id', function(req, res){
   var articleId = req.params.id;
-  var hbsObj = {
+  var articleObj = {
     article: [],
     body: []
   };
 
-
-
-    // //find the article at the id
+   //find the article at the id and populate comment 
     Article.findOne({ _id: articleId })
       .populate('comment')
       .exec(function(err, doc){
 
       if(err){
+        console.log(err)
 
       } else {
-        hbsObj.article = doc;
+        articleObj.article = doc;
         var link = doc.link;
-        //grab article from link
+        //grab article from link to grab the article story just like in the scrape route
         request("http://www.espn.com/" + link, function(error, response, html) {
           var $ = cheerio.load(html);
 
           $('article .article-body').each(function(i, element){
-            hbsObj.body = $(this).children('p').text();
-            console.log()
-            //send article body and comments to article.handlbars through hbObj
-            res.render('article', hbsObj);
-            //prevents loop through so it doesn't return an empty hbsObj.body
+            articleObj.body = $(this).children('p').text();
+            //render article and comments to the handlebars article file
+            res.render('article', articleObj);
             return false;
           });
         });
       }
-
     });
 });
 
