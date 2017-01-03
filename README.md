@@ -14,3 +14,20 @@ Under Construction :
 
 * The backend of the app uses 'mongoose' to interact with 'mongodb' and 'express' to handle the routes for the server. 
 
+
+## Screenshots of the app functions
+
+### The main '/articles' page is where the articles are found. 
+![All Articles](/assets/images/Screensho1.JPG)
+
+### After you click **scrape** the '/articles' page will refresh.
+![Scraped](/assets/images/Screensho2.JPG)
+
+### A screen shot of the 'footer.handlebars' partial template.
+![footer](/assets/images/footer3.JPG)
+
+### After clicked **Read Article** page is directed to '/readArticle/' and the ID of the article in the database.
+![Read Article](/assets/images/article4.JPG)
+
+### Comments on the article can be added at the bottom of article. 
+![Comments](/assets/images/comments.JPG)
