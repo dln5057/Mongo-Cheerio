@@ -4,8 +4,6 @@
 
 Link to the Football Scraper App : [link](https://footballscraper.herokuapp.com/)
 
-Under Construction :
-![alt text](public/assets/images/cone.png "Its a crazy cone!")
 
 ## How the app functions:
 * The frontend of the app uses 'handlebars' to template and 'materialize' as styling for the articles, navbar and footer. 
